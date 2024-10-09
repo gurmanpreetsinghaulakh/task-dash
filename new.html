@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal</title>
+    <style>
+        /* Reset default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3, h4 {
+    color: #2c3e50;
+}
+
+h2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+h4 {
+    margin-top: 25px;
+    font-size: 20px;
+    color: #34495e;
+}
+
+.button {
+    display: inline-block;
+    padding: 12px 20px;
+    margin: 10px 0;
+    background-color: #2980b9;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button:hover {
+    background-color: #1e6b99;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.logout-btn {
+    float: right;
+    background-color: #e74c3c;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+#error-message {
+    color: #e74c3c;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #2980b9;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.team-item {
+    background: #ecf0f1;
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.team-item:hover {
+    background-color: #e1e9ee;
+}
+
+.remove-member {
+    background-color: #e67e22;
+    color: #ffffff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.remove-member:hover {
+    background-color: #d35400;
+}
+
+.tasks h3 {
+    color: #2c3e50;
+    font-size: 22px;
+}
+
+select, #assignTaskContainer input[type="text"] {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
+
+select:focus, 
+#assignTaskContainer input[type="text"]:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+#assignedTasksList, #ongoingTasksList {
+    margin-top: 20px;
+    padding-left: 10px;
+}
+
+#assignedTasksList div, #ongoingTasksList div {
+    background: #dfe6e9;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+#assignedTasksList div:hover, 
+#ongoingTasksList div:hover {
+    background-color: #b2bec3;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+
+    .logout-btn {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    .button {
+        width: 100%;
+        text-align: center;
+    }
+
+    input[type="text"], input[type="password"] {
+        font-size: 14px;
+    }
+}
+
+    </style>
+
+</head>
+<body>
+     <!-- Login Form -->
+     <div class="container" id="loginForm">
+        <h2>Login</h2>
+        <form onsubmit="return validateLogin()">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="button">Login</button>
+        </form>
+        <p id="error-message"></p>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="container" id="dashboard" style="display: none;">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <h2>Admin Dashboard</h2>
+        <button class="button" onclick="toggleAddTeam()">Add Team</button>
+        <div class="form-group" id="addTeamForm" style="display: none;">
+            <input type="text" id="teamName" placeholder="Team Name" required>
+            <input type="text" id="teamLeaderName" placeholder="Team Leader Name" required>
+            <button class="button" onclick="addTeam()">Create Team</button>
+        </div>
+        <button class="button" onclick="toggleTeams()">View Teams</button>
+        <div class="teams" id="teamsList" style="display: none;"></div>
+
+        <!-- Tasks Section for Admin -->
+        <div class="tasks" id="tasksContainer">
+            <h3>Assign Task</h3>
+            <select id="teamSelect" onchange="updateTaskInputVisibility()">
+                <option value="">Select Team</option>
+            </select>
+            <div id="assignTaskContainer" style="display: none;">
+                <input type="text" id="taskInput" placeholder="Enter task" required>
+                <button class="button" onclick="assignTask()">Assign Task</button>
+                <h4>Ongoing Tasks:</h4>
+                <div id="ongoingTasksList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Leader Dashboard -->
+    <div class="container" id="teamLeaderDashboard" style="display: none;">
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <h2>Team Leader Dashboard</h2>
+        <div>
+            <h3>Edit Details</h3>
+            <input type="text" id="leaderName" placeholder="Name" required>
+            <input type="text" id="leaderEmail" placeholder="Email (optional)">
+            <input type="text" id="leaderPhone" placeholder="Phone (optional)">
+            <input type="text" id="leaderAddress" placeholder="Address (optional)">
+            <button class="button" onclick="saveLeaderDetails()">Save Details</button>
+        </div>
+        <div id="leaderDetails"></div>
+
+        <!-- Assigned Tasks for Team Leader -->
+        <h3>Assigned Tasks:</h3>
+        <div id="assignedTasksList"></div>
+    </div>
+
+    <script>
+        let teams = JSON.parse(localStorage.getItem('teams')) || [];
+        let teamLeaders = JSON.parse(localStorage.getItem('teamLeaders')) || {};
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || {};
+
+        // Validate login credentials
+        function validateLogin() {
+            const username = document.getElementById('username').value.toLowerCase();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            const validUsername = 'admin';
+            const validPassword = '123';
+
+            // Admin login
+            if (username === validUsername && password === validPassword) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block'; // Show admin dashboard
+                populateTeamSelect();
+                return false;
+            }
+
+            // Team leader login
+            if (teamLeaders[username] && teamLeaders[username].password === password) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('teamLeaderDashboard').style.display = 'block'; // Show team leader dashboard
+                document.getElementById('leaderName').value = username;
+                displayLeaderDetails(username);
+                displayAssignedTasks(username); // Display tasks
+                return false;
+            }
+
+            errorMessage.textContent = 'Invalid username or password.';
+            return false;
+        }
+
+        // Logout and reset the page
+        function logout() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('teamLeaderDashboard').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('error-message').textContent = '';
+            document.getElementById('leaderName').value = '';
+            document.getElementById('leaderEmail').value = '';
+            document.getElementById('leaderPhone').value = '';
+            document.getElementById('leaderAddress').value = '';
+        }
+
+        function toggleAddTeam() {
+            const form = document.getElementById('addTeamForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addTeam() {
+            const teamName = document.getElementById('teamName').value;
+            const teamLeaderName = document.getElementById('teamLeaderName').value;
+
+            if (teamName && teamLeaderName) {
+                const newTeam = { name: teamName, leader: teamLeaderName, members: [] };
+                teams.push(newTeam);
+                teamLeaders[teamLeaderName.toLowerCase()] = { password: '123' }; // Fixed password
+                localStorage.setItem('teams', JSON.stringify(teams));
+                localStorage.setItem('teamLeaders', JSON.stringify(teamLeaders));
+                document.getElementById('teamName').value = '';
+                document.getElementById('teamLeaderName').value = '';
+                alert(`Team and leader added successfully! Credentials: ${teamLeaderName} / 123`);
+                populateTeamSelect(); // Update team select
+                displayTeams();
+            } else {
+                alert('Please enter both team name and team leader name.');
+            }
+        }
+
+        function toggleTeams() {
+            const teamsList = document.getElementById('teamsList');
+            teamsList.style.display = teamsList.style.display === 'none' ? 'block' : 'none';
+            displayTeams();
+        }
+
+        function displayTeams() {
+            const teamsList = document.getElementById('teamsList');
+            teamsList.innerHTML = '';
+            teams.forEach((team, index) => {
+                const teamItem = document.createElement('div');
+                teamItem.className = 'team-item';
+                teamItem.innerHTML = `
+                    <h3>${team.name}</h3>
+                    <button class="button" onclick="toggleAddMembers(${index})" style="width: auto; margin-left: 10px;">Add Members</button>
+                    <button class="button" onclick="removeTeam(${index})" style="width: auto; margin-left: 10px;">Remove Team</button>
+                    <h4>Team Leader: ${team.leader}</h4>
+                    <div>
+                        <h4>Team Members:</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Employee ID</th>
+                                    <th>Remove from Team</th>
+                                </tr>
+                            </thead>
+                            <tbody id="members-${index}"></tbody>
+                        </table>
+                    </div>
+                `;
+                teamsList.appendChild(teamItem);
+                displayMembers(team, index);
+            });
+        }
+
+        function toggleAddMembers(index) {
+            const memberName = prompt("Enter member name:");
+            const memberId = prompt("Enter member ID:");
+
+            if (memberName && memberId) {
+                teams[index].members.push({ name: memberName, id: memberId });
+                localStorage.setItem('teams', JSON.stringify(teams));
+                displayMembers(teams[index], index);
+            } else {
+                alert('Both name and ID are required to add a member.');
+            }
+        }
+
+        function displayMembers(team, teamIndex) {
+            const membersContainer = document.getElementById(`members-${teamIndex}`);
+            membersContainer.innerHTML = ''; // Clear existing members
+
+            team.members.forEach((member, memberIndex) => {
+                const memberRow = document.createElement('tr');
+                memberRow.innerHTML = `
+                    <td>${member.name}</td>
+                    <td>${member.id}</td>
+                    <td><button class="remove-member" onclick="removeMember(${teamIndex}, ${memberIndex})">Remove</button></td>
+                `;
+                membersContainer.appendChild(memberRow);
+            });
+        }
+
+        function removeTeam(index) {
+            if (confirm("Are you sure you want to remove this team?")) {
+                const teamLeaderName = teams[index].leader.toLowerCase();
+                delete teamLeaders[teamLeaderName]; // Remove team leader's credentials
+                teams.splice(index, 1); // Remove the team from the array
+                localStorage.setItem('teams', JSON.stringify(teams));
+                localStorage.setItem('teamLeaders', JSON.stringify(teamLeaders)); // Update team leaders
+                displayTeams(); // Refresh the displayed teams
+            }
+        }
+
+        function removeMember(teamIndex, memberIndex) {
+            if (confirm("Are you sure you want to remove this member?")) {
+                teams[teamIndex].members.splice(memberIndex, 1); // Remove the member
+                localStorage.setItem('teams', JSON.stringify(teams)); // Update localStorage
+                displayMembers(teams[teamIndex], teamIndex); // Refresh displayed members
+            }
+        }
+
+        function populateTeamSelect() {
+            const teamSelect = document.getElementById('teamSelect');
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.name;
+                option.textContent = team.name;
+                teamSelect.appendChild(option);
+            });
+        }
+
+        function updateTaskInputVisibility() {
+            const selectedTeam = document.getElementById('teamSelect').value;
+            const assignTaskContainer = document.getElementById('assignTaskContainer');
+
+            if (selectedTeam) {
+                assignTaskContainer.style.display = 'block';
+            } else {
+                assignTaskContainer.style.display = 'none';
+            }
+        }
+
+        function assignTask() {
+            const selectedTeam = document.getElementById('teamSelect').value;
+            const taskInput = document.getElementById('taskInput').value;
+
+            if (selectedTeam && taskInput) {
+                // Initialize tasks array for the selected team if not already present
+                if (!tasks[selectedTeam]) {
+                    tasks[selectedTeam] = [];
+                }
+                tasks[selectedTeam].push(taskInput);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                document.getElementById('taskInput').value = ''; // Clear the input
+                displayOngoingTasks(selectedTeam); // Display ongoing tasks for selected team
+            } else {
+                alert('Please select a team and enter a task.');
+            }
+        }
+
+// Display ongoing tasks with Complete and Remove options
+function displayOngoingTasks() {
+    const ongoingTasksList = document.getElementById('ongoingTasksList');
+    ongoingTasksList.innerHTML = ''; // Clear the list
+
+    const selectedTeam = document.getElementById('teamSelect').value;
+    const ongoingTasks = tasks[selectedTeam] || [];
+
+    ongoingTasks.forEach((task, index) => {
+        const taskDiv = document.createElement('div');
+        taskDiv.textContent = task;
+
+        // Create Complete button
+        const completeButton = document.createElement('button');
+        completeButton.textContent = 'Complete';
+        completeButton.className = 'button';
+        completeButton.onclick = () => completeTask(selectedTeam, index);
+
+        // Create Remove button
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.className = 'remove-member';
+        removeButton.onclick = () => removeTask(selectedTeam, index);
+
+        // Append buttons to task div
+        taskDiv.appendChild(completeButton);
+        taskDiv.appendChild(removeButton);
+        ongoingTasksList.appendChild(taskDiv);
+    });
+}
+
+// Complete task
+function completeTask(team, taskIndex) {
+    if (tasks[team]) {
+        tasks[team].splice(taskIndex, 1); // Remove the task from ongoing
+        localStorage.setItem('tasks', JSON.stringify(tasks)); // Update local storage
+        displayOngoingTasks(); // Refresh the displayed list
+    }
+}
+
+// Remove task
+function removeTask(team, taskIndex) {
+    if (tasks[team]) {
+        tasks[team].splice(taskIndex, 1); // Remove the task from ongoing
+        localStorage.setItem('tasks', JSON.stringify(tasks)); // Update local storage
+        displayOngoingTasks(); // Refresh the displayed list
+    }
+}
+
+
+
+        function saveLeaderDetails() {
+            const leaderName = document.getElementById('leaderName').value;
+            const leaderEmail = document.getElementById('leaderEmail').value;
+            const leaderPhone = document.getElementById('leaderPhone').value;
+            const leaderAddress = document.getElementById('leaderAddress').value;
+
+            if (leaderName) {
+                const details = {
+                    email: leaderEmail,
+                    phone: leaderPhone,
+                    address: leaderAddress
+                };
+                teamLeaders[leaderName.toLowerCase()] = { password: '123', details };
+                localStorage.setItem('teamLeaders', JSON.stringify(teamLeaders));
+                alert('Details saved successfully!');
+                displayLeaderDetails(leaderName.toLowerCase());
+            } else {
+                alert('Please enter your name.');
+            }
+        }
+
+        function displayLeaderDetails(username) {
+            const detailsContainer = document.getElementById('leaderDetails');
+            detailsContainer.innerHTML = ''; // Clear existing details
+            const details = teamLeaders[username].details;
+
+            if (details) {
+                detailsContainer.innerHTML = `
+                    <p><strong>Email:</strong> ${details.email || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${details.phone || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${details.address || 'N/A'}</p>
+                `;
+            }
+        }
+
+        function displayAssignedTasks(username) {
+            const assignedTasksList = document.getElementById('assignedTasksList');
+            assignedTasksList.innerHTML = ''; // Clear existing tasks
+            const team = teams.find(t => t.leader.toLowerCase() === username);
+            if (team) {
+                const teamTasks = tasks[team.name] || [];
+                teamTasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.textContent = task;
+                    assignedTasksList.appendChild(taskItem);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
